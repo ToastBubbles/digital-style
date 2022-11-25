@@ -1,0 +1,21 @@
+.canvas {
+  /* Perfectly square */
+  width: 1000px;
+  height: 1000px;
+}
+
+.pixel {
+  /* We'll need 64 total pixels in our HTML */
+  width: 25px;
+  height: 25px;
+  background-color: antiquewhite;
+  float: left;
+}
+
+.white {
+  background-color: white;
+}
+
+.black {
+  background-color: black;
+}
