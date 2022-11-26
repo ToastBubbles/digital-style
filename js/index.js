@@ -1,5 +1,6 @@
+let mainGrid = document.getElementById("main_grid");
+
 function main() {
-  let mainGrid = document.getElementById("main_grid");
   //document.querySelector
   let maxPixels = 1600;
 
@@ -8,6 +9,16 @@ function main() {
   setTimeout(() => {
     pupilUpdater();
   }, "10");
+}
+
+let buttonString = "";
+
+function userInput() {
+  let textBox = document.getElementById("message");
+  textBox.addEventListener("keydown", (event) => {
+    console.log(`key=${event.key},code=${event.code}`);
+    buttonString = event.key;
+  });
 }
 
 function generatePixels(pixelCount) {
@@ -39,25 +50,72 @@ function generatePixels(pixelCount) {
   return htmlString;
 }
 let lookPos = 1;
+let wormLength = 3;
+let bodySegments = [722, 723, 724];
+
 function pupilUpdater() {
+  bodySegments.forEach((seg) => {
+    document.querySelector(`.pixel:nth-child(${seg})`).classList.add("black");
+  });
+
+  switch (buttonString) {
+    case "ArrowLeft":
+      lookPos--;
+      break;
+    case "ArrowRight":
+      bodySegments.push(bodySegments[bodySegments.length] + 1);
+      bodySegments.shift();
+      break;
+    case "ArrowUp":
+      lookPos -= 40;
+      break;
+    case "ArrowDown":
+      lookPos += 40;
+      break;
+    default:
+      bodySegments.push(bodySegments[bodySegments.length - 1] + 1);
+      bodySegments.shift();
+      console.log(bodySegments);
+  }
+
+  /*
   let myPixel = document.querySelector(`.pixel:nth-child(${lookPos})`);
-  let prevPixel = document.querySelector(`.pixel:nth-child(${lookPos - 3})`);
+  let prevPixel = document.querySelector(
+    `.pixel:nth-child(${lookPos - wormLength})`
+  );
   //console.log(document.querySelector(`.pixel:nth-child(${lookPos})`));
   if (lookPos <= 1600) {
     myPixel.classList.add("black");
   }
-  if (lookPos - 3 > 0) {
+  if (lookPos - wormLength > 0) {
     prevPixel.classList.remove("black");
   }
 
-  if (lookPos < 1603) {
-    lookPos++;
+  if (lookPos < 1600 + wormLength) {
+    switch (buttonString) {
+      case "ArrowLeft":
+        lookPos--;
+        break;
+      case "ArrowRight":
+        lookPos++;
+        break;
+      case "ArrowUp":
+        lookPos -= 40;
+        break;
+      case "ArrowDown":
+        lookPos += 40;
+        break;
+      default:
+        lookPos++;
+        break;
+    }
   } else {
     lookPos = 1;
-  }
+  }*/
   setTimeout(() => {
     pupilUpdater();
   }, "30");
 }
 
 main();
+userInput();
