@@ -50,32 +50,68 @@ function generatePixels(pixelCount) {
   return htmlString;
 }
 let lookPos = 1;
-let wormLength = 3;
+let wormLength = 20;
 let bodySegments = [722, 723, 724];
 
 function pupilUpdater() {
+  if (
+    document
+      .querySelector(
+        `.pixel:nth-child(${bodySegments[bodySegments.length - 1]})`
+      )
+      .classList.contains("black")
+  ) {
+    console.log("failed");
+  }
   bodySegments.forEach((seg) => {
     document.querySelector(`.pixel:nth-child(${seg})`).classList.add("black");
   });
 
   switch (buttonString) {
     case "ArrowLeft":
-      lookPos--;
+      bodySegments.push(bodySegments[bodySegments.length - 1] - 1);
+      if (bodySegments.length - 1 === wormLength) {
+        document
+          .querySelector(`.pixel:nth-child(${bodySegments[0]})`)
+          .classList.remove("black");
+        bodySegments.shift();
+      }
       break;
     case "ArrowRight":
-      bodySegments.push(bodySegments[bodySegments.length] + 1);
-      bodySegments.shift();
+      bodySegments.push(bodySegments[bodySegments.length - 1] + 1);
+      if (bodySegments.length - 1 === wormLength) {
+        document
+          .querySelector(`.pixel:nth-child(${bodySegments[0]})`)
+          .classList.remove("black");
+        bodySegments.shift();
+      }
       break;
     case "ArrowUp":
-      lookPos -= 40;
+      bodySegments.push(bodySegments[bodySegments.length - 1] - 40);
+      if (bodySegments.length - 1 === wormLength) {
+        document
+          .querySelector(`.pixel:nth-child(${bodySegments[0]})`)
+          .classList.remove("black");
+        bodySegments.shift();
+      }
       break;
     case "ArrowDown":
-      lookPos += 40;
+      bodySegments.push(bodySegments[bodySegments.length - 1] + 40);
+      if (bodySegments.length - 1 === wormLength) {
+        document
+          .querySelector(`.pixel:nth-child(${bodySegments[0]})`)
+          .classList.remove("black");
+        bodySegments.shift();
+      }
       break;
     default:
       bodySegments.push(bodySegments[bodySegments.length - 1] + 1);
-      bodySegments.shift();
-      console.log(bodySegments);
+      if (bodySegments.length - 1 === wormLength) {
+        document
+          .querySelector(`.pixel:nth-child(${bodySegments[0]})`)
+          .classList.remove("black");
+        bodySegments.shift();
+      }
   }
 
   /*
@@ -114,7 +150,7 @@ function pupilUpdater() {
   }*/
   setTimeout(() => {
     pupilUpdater();
-  }, "30");
+  }, "100");
 }
 
 main();
