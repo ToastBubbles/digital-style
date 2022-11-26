@@ -1,47 +1,57 @@
+const numberToText = require("number-to-text");
+require("number-to-text/converters/en-us");
+
+let wormLength = 3;
+let wormSpeed = 100; //higher = slower
+let maxWormSpeed = 30;
+let width = 40;
+let maxPixels = width * width;
+let bodySegments = [724];
 let mainGrid = document.getElementById("main_grid");
+let failcheck = false;
+let score = 0;
 
 function main() {
-  //document.querySelector
-  let maxPixels = 1600;
-
   mainGrid.innerHTML = generatePixels(maxPixels);
 
   setTimeout(() => {
-    pupilUpdater();
+    wormUpdate();
   }, "10");
 }
 
-let buttonString = "";
+let buttonString = "ArrowRight";
 
 function userInput() {
+  document.addEventListener("keydown", (event) => {
+    console.log(`key=${event.key},code=${event.code}`);
+    buttonString = event.key;
+  });
+}
+/*function userInput() {
   let textBox = document.getElementById("message");
   textBox.addEventListener("keydown", (event) => {
     console.log(`key=${event.key},code=${event.code}`);
     buttonString = event.key;
   });
-}
+}*/
 
 function generatePixels(pixelCount) {
   let htmlString = "";
   let trackerNum = 1;
   let whiteArray = [
-    371, 372, 373, 374, 375, 386, 387, 388, 389, 390, 410, 411, 412, 413, 414,
+    /*371, 372, 373, 374, 375, 386, 387, 388, 389, 390, 410, 411, 412, 413, 414,
     415, 416, 425, 426, 427, 428, 429, 430, 431, 450, 451, 452, 453, 454, 455,
     456, 465, 466, 467, 468, 469, 470, 471, 490, 491, 492, 493, 494, 495, 496,
     505, 506, 507, 508, 509, 510, 511, 530, 531, 532, 533, 534, 535, 546, 547,
-    547, 548, 549, 550, 551, 571, 572, 573, 574, 587, 588, 589, 590,
-    /*368, 369, 370, 391, 392, 393, 407, 408, 409, 410, 411, 430, 431, 432, 433,
-    434, 446, 447, 448, 449, 450, 451, 452, 469, 470, 471, 472, 473, 474, 475,
-    486, 487, 488, 489, 490, 491, 492, 509, 510, 511, 512, 513, 514, 515, 526,
-    527, 528, 529, 530, 531, 532, 549, 550, 551, 552, 553, 554, 555, 566, 567,
-    568, 569, 570, 571, 572, 589, 590, 591, 592, 593, 594, 595, 607, 608, 609,
-    610, 611, 630, 631, 632, 633, 634, 648, 649, 650, 671, 672, 673,*/
+    547, 548, 549, 550, 551, 571, 572, 573, 574, 587, 588, 589, 590,*/
   ];
   for (var i = 0; i < pixelCount; i++) {
     if (whiteArray.includes(trackerNum)) {
-      htmlString += `<div class="pixel white">${trackerNum}</div>`;
+      //htmlString += `<div class="pixel white">${trackerNum}</div>`;
+      htmlString += `<div class="pixel white"></div>`;
     } else {
-      htmlString += `<div class="pixel">${trackerNum}</div>`;
+      //htmlString += `<div class="pixel">${trackerNum}</div>`;
+      htmlString += `<div class="pixel"></div>`;
     }
 
     trackerNum++;
@@ -49,11 +59,9 @@ function generatePixels(pixelCount) {
 
   return htmlString;
 }
-let lookPos = 1;
-let wormLength = 20;
-let bodySegments = [722, 723, 724];
-
-function pupilUpdater() {
+let lastButton = "";
+let direction = 1;
+function wormUpdate() {
   if (
     document
       .querySelector(
@@ -61,97 +69,168 @@ function pupilUpdater() {
       )
       .classList.contains("black")
   ) {
-    console.log("failed");
+    fail();
+  } else if (
+    document
+      .querySelector(
+        `.pixel:nth-child(${bodySegments[bodySegments.length - 1]})`
+      )
+      .classList.contains("pellet")
+  ) {
+    console.log("i eated a peller");
+    score += 50;
+    document
+      .querySelector(
+        `.pixel:nth-child(${bodySegments[bodySegments.length - 1]})`
+      )
+      .classList.remove("pellet");
+    wormLength++;
+    if (!(wormSpeed <= maxWormSpeed)) {
+      wormSpeed--;
+    }
+    generatePellet();
   }
+
   bodySegments.forEach((seg) => {
     document.querySelector(`.pixel:nth-child(${seg})`).classList.add("black");
   });
 
   switch (buttonString) {
     case "ArrowLeft":
-      bodySegments.push(bodySegments[bodySegments.length - 1] - 1);
-      if (bodySegments.length - 1 === wormLength) {
-        document
-          .querySelector(`.pixel:nth-child(${bodySegments[0]})`)
-          .classList.remove("black");
-        bodySegments.shift();
+      if (!(lastButton == "ArrowRight")) {
+        direction = -1;
+        lastButton = buttonString;
       }
       break;
     case "ArrowRight":
-      bodySegments.push(bodySegments[bodySegments.length - 1] + 1);
-      if (bodySegments.length - 1 === wormLength) {
-        document
-          .querySelector(`.pixel:nth-child(${bodySegments[0]})`)
-          .classList.remove("black");
-        bodySegments.shift();
+      if (!(lastButton == "ArrowLeft")) {
+        direction = 1;
+        lastButton = buttonString;
       }
       break;
     case "ArrowUp":
-      bodySegments.push(bodySegments[bodySegments.length - 1] - 40);
-      if (bodySegments.length - 1 === wormLength) {
-        document
-          .querySelector(`.pixel:nth-child(${bodySegments[0]})`)
-          .classList.remove("black");
-        bodySegments.shift();
+      if (!(lastButton == "ArrowDown")) {
+        direction = -width;
+        lastButton = buttonString;
       }
       break;
     case "ArrowDown":
-      bodySegments.push(bodySegments[bodySegments.length - 1] + 40);
-      if (bodySegments.length - 1 === wormLength) {
-        document
-          .querySelector(`.pixel:nth-child(${bodySegments[0]})`)
-          .classList.remove("black");
-        bodySegments.shift();
+      if (!(lastButton == "ArrowUp")) {
+        direction = width;
+        lastButton = buttonString;
       }
       break;
     default:
-      bodySegments.push(bodySegments[bodySegments.length - 1] + 1);
-      if (bodySegments.length - 1 === wormLength) {
-        document
-          .querySelector(`.pixel:nth-child(${bodySegments[0]})`)
-          .classList.remove("black");
-        bodySegments.shift();
-      }
+      direction = 1;
   }
 
-  /*
-  let myPixel = document.querySelector(`.pixel:nth-child(${lookPos})`);
-  let prevPixel = document.querySelector(
-    `.pixel:nth-child(${lookPos - wormLength})`
-  );
-  //console.log(document.querySelector(`.pixel:nth-child(${lookPos})`));
-  if (lookPos <= 1600) {
-    myPixel.classList.add("black");
-  }
-  if (lookPos - wormLength > 0) {
-    prevPixel.classList.remove("black");
-  }
+  changeDirection(direction);
 
-  if (lookPos < 1600 + wormLength) {
-    switch (buttonString) {
-      case "ArrowLeft":
-        lookPos--;
-        break;
-      case "ArrowRight":
-        lookPos++;
-        break;
-      case "ArrowUp":
-        lookPos -= 40;
-        break;
-      case "ArrowDown":
-        lookPos += 40;
-        break;
-      default:
-        lookPos++;
-        break;
-    }
+  if (!failcheck) {
+    setTimeout(() => {
+      wormUpdate();
+    }, wormSpeed);
+  }
+}
+
+function generatePellet() {
+  let newPos = Math.floor(Math.random() * maxPixels);
+  if (
+    document
+      .querySelector(`.pixel:nth-child(${newPos})`)
+      .classList.contains("black")
+  ) {
+    generatePellet();
   } else {
-    lookPos = 1;
-  }*/
-  setTimeout(() => {
-    pupilUpdater();
-  }, "100");
+    document
+      .querySelector(`.pixel:nth-child(${newPos})`)
+      .classList.add("pellet");
+  }
+}
+
+function changeDirection(dir) {
+  let lastArraySeg = bodySegments[bodySegments.length - 1];
+  //console.log(lastArraySeg % 40);
+  if (dir == 1) {
+    if (lastArraySeg % width == 0 && !(lastArraySeg + dir) % width == 0) {
+      bodySegments.push(bodySegments[bodySegments.length - 1] + dir - width);
+    } else {
+      bodySegments.push(bodySegments[bodySegments.length - 1] + dir);
+    }
+  } else if (dir == -1) {
+    if ((lastArraySeg % width) - 1 == 0 && !(lastArraySeg - dir) % width == 0) {
+      bodySegments.push(bodySegments[bodySegments.length - 1] + dir + width);
+    } else {
+      bodySegments.push(bodySegments[bodySegments.length - 1] + dir);
+    }
+  } else if (dir == width) {
+    if (lastArraySeg + dir > maxPixels) {
+      bodySegments.push(
+        bodySegments[bodySegments.length - 1] + dir - maxPixels
+      );
+    } else {
+      bodySegments.push(bodySegments[bodySegments.length - 1] + dir);
+    }
+  } else if (dir == -width) {
+    if (lastArraySeg + dir <= 0) {
+      bodySegments.push(
+        bodySegments[bodySegments.length - 1] + dir + maxPixels
+      );
+    } else {
+      bodySegments.push(bodySegments[bodySegments.length - 1] + dir);
+    }
+  }
+
+  if (bodySegments.length - 1 === wormLength) {
+    document
+      .querySelector(`.pixel:nth-child(${bodySegments[0]})`)
+      .classList.remove("black");
+    bodySegments.shift();
+  }
+}
+
+function updateScore() {
+  if (!failcheck) {
+    setTimeout(() => {
+      /*
+      document
+        .querySelector(`.pixel:nth-child(${width / 2 + width})`)
+        .classList.add("scoreText");
+      document.querySelector(
+        `.pixel:nth-child(${width / 2 + width})`
+      ).innerHTML = score;*/
+
+      document.getElementById("scoreText").innerHTML =
+        numberToText.convertToText(score);
+
+      updateScore();
+    }, "10");
+  }
+}
+
+function fail() {
+  failcheck = true;
+  document.querySelector(
+    `.pixel:nth-child(${maxPixels / 2 - width / 2 - 3})`
+  ).innerHTML = "F";
+  document.querySelector(
+    `.pixel:nth-child(${maxPixels / 2 - width / 2 - 2})`
+  ).innerHTML = "A";
+  document.querySelector(
+    `.pixel:nth-child(${maxPixels / 2 - width / 2 - 1})`
+  ).innerHTML = "I";
+  document.querySelector(
+    `.pixel:nth-child(${maxPixels / 2 - width / 2})`
+  ).innerHTML = "L";
+  document.querySelector(
+    `.pixel:nth-child(${maxPixels / 2 - width / 2 + 1})`
+  ).innerHTML = "E";
+  document.querySelector(
+    `.pixel:nth-child(${maxPixels / 2 - width / 2 + 2})`
+  ).innerHTML = "D";
 }
 
 main();
 userInput();
+generatePellet();
+updateScore();

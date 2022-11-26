@@ -1,0 +1,28 @@
+{
+  "name": "jeffs_snake",
+  "version": "1.0.0",
+  "description": "A snake game.",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack watch",
+    "dev-server": "webpack serve --open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ToastBubbles/git-github.com-ToastBubbles-digital-style.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ToastBubbles/git-github.com-ToastBubbles-digital-style/issues"
+  },
+  "homepage": "https://github.com/ToastBubbles/git-github.com-ToastBubbles-digital-style#readme",
+  "dependencies": {
+    "number-to-text": "^0.3.9"
+  },
+  "devDependencies": {
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.0"
+  }
+}
