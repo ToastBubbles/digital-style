@@ -32,10 +32,10 @@ let buttonString = "ArrowRight";
 
 function userInput() {
   document.addEventListener("keydown", (event) => {
-    console.log(`key=${event.key},code=${event.code}`);
+    //console.log(`key=${event.key},code=${event.code}`);
     buttonString = event.key;
   });
-}
+} //test
 
 function generatePixels(pixelCount) {
   let htmlString = "";
@@ -90,6 +90,7 @@ function wormUpdate() {
     if (hungerLevel > 100) {
       hungerLevel = 100;
     }
+    readWord("cronch", 2, 0.9);
     score += 50;
     document
       .querySelector(
@@ -210,7 +211,7 @@ function updateScore() {
   if (!failcheck) {
     setTimeout(() => {
       document.getElementById("scoreText").innerHTML =
-        numberToText.convertToText(score);
+        numberToText.convertToText(score) + " Points";
 
       updateScore();
     }, "10");
@@ -230,13 +231,17 @@ function enemyWorm() {
     enemyDir = width;
   } else if (pelletPos < lastEnemySeg && lastEnemySeg < pelletPos + width) {
     enemyDir = -1;
-  } else if (pelletPos > lastEnemySeg && lastEnemySeg < pelletPos + width) {
+  } else if (
+    (pelletPos > lastEnemySeg && lastEnemySeg < pelletPos + width) ||
+    (pelletPos + width > 1600 && pelletPos - width < lastEnemySeg)
+  ) {
     enemyDir = 1;
   }
 
   //console.log(pelletPos + "p " + lastEnemySeg);
 
   if (
+    enemySegments[enemySegments.length - 1] + enemyDir < width * width &&
     document
       .querySelector(
         `.pixel:nth-child(${
@@ -258,6 +263,7 @@ function enemyWorm() {
         `.pixel:nth-child(${enemySegments[enemySegments.length - 1]})`
       )
       .classList.remove("pellet");
+    readWord("munch", 3, 1.3);
     enemyWormLength++;
 
     // if (!(wormSpeed <= maxWormSpeed)) {
@@ -280,28 +286,68 @@ function enemyWorm() {
   }
   setTimeout(() => {
     enemyWorm();
-  }, "200");
+  }, "10");
 }
 function hunger() {
   var hungerBar = document.getElementById("wormFoodBar");
   hungerBar.style.width = hungerLevel + "%";
+
   if (hungerLevel <= 0) {
     fail();
   }
   setTimeout(() => {
-    hunger();
+    if (!failcheck) {
+      hunger();
+    }
   }, 10);
+}
+function setSpeech() {
+  return new Promise(function (resolve, reject) {
+    let synth = window.speechSynthesis;
+    let id;
+
+    id = setInterval(() => {
+      if (synth.getVoices().length !== 0) {
+        resolve(synth.getVoices());
+        clearInterval(id);
+      }
+    }, 10);
+  });
+}
+
+//fail();
+function readWord(sampleWord, voiceIndex, voiceRate) {
+  var speakWord = new SpeechSynthesisUtterance();
+
+  let s = setSpeech();
+  s.then(
+    //(voices) => console.log(voices)
+    function setVoice(voiceChosenWord) {
+      speakWord.voice = voiceChosenWord[voiceIndex];
+      //console.log(speakWord.voice);
+      speakWord.volume = 1;
+      speakWord.rate = voiceRate;
+      speakWord.pitch = 3;
+      speakWord.text = sampleWord;
+      window.speechSynthesis.speak(speakWord);
+    }
+  );
 }
 
 function hungerDecay() {
   if (!failcheck) {
     hungerLevel--;
+    if (hungerLevel == 25) {
+      readWord("I am very hungry", 2, 0.8);
+    }
     setTimeout(() => {
       hungerDecay();
     }, 500 - Math.floor(wormLength * 0.5));
   }
 }
 function fail() {
+  hunger = 1;
+  readWord("sorry! better luck nex time, cheeky fella", 7, 0.6);
   failcheck = true;
   document.querySelector(
     `.pixel:nth-child(${maxPixels / 2 - width / 2 - 3})`

@@ -45,6 +45,7 @@ body {
 
 .enemy {
   background-color: red;
+  color: black;
 }
 
 .light-grey {
