@@ -42,3 +42,20 @@ body {
   left: 50vw;
   top: 2vh;
 }
+
+.enemy {
+  background-color: red;
+}
+
+.light-grey {
+  background-color: lightgray;
+  height: 24px;
+}
+
+.foodBar {
+  text-align: center;
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+  color: white;
+  background-color: #1f0;
+  height: 24px;
+}

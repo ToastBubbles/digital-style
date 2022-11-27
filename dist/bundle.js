@@ -1,5 +1,167 @@
-const numberToText = require("number-to-text");
-require("number-to-text/converters/en-us");
+/******/ (() => { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ([
+/* 0 */,
+/* 1 */
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const Converter = __webpack_require__(2)
+const container = {}
+class NumberToText {
+  /**
+  *  convert number to text
+  *  @param {string or number} num
+  *  @param {object } options { language : "en-us" ,separator :"," ,case : "titleCase" } current support languages en-us, en-in annd de and cases are "titleCase" , "lowerCase" , "upperCase". default is { language : "en-us" ,separator :"," ,case : "titleCase" }
+  */
+  constructor () {
+    this.Converter = Converter
+  }
+
+  convertToText (num, options) {
+    options = options || {}
+
+    const language = (options.language || 'en-us').toLowerCase()
+    if (Object.prototype.hasOwnProperty.call(container, language)) {
+      return container[language].convertToText(num, options)
+    } else {
+      throw new Error('converter for language "' + language + '" not found.')
+    }
+  }
+
+  addConverter (language, langConverter) {
+    if (!Object.prototype.hasOwnProperty.call(container, language)) {
+      if (langConverter instanceof Converter) {
+        container[language] = langConverter
+      } else {
+        throw new Error('language converter is not instance of converter')
+      }
+    } else {
+      return false
+    }
+  }
+}
+
+module.exports = new NumberToText()
+
+
+/***/ }),
+/* 2 */
+/***/ ((module) => {
+
+class Converter {
+  convertToText (options) {
+    throw new Error('convertToText is not implemented by ' + this.constructor.name + ' .')
+  }
+}
+module.exports = Converter
+
+
+/***/ }),
+/* 3 */
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const numberToText = __webpack_require__(1)
+
+const thousands = ['', 'Thousand', 'Million', 'Billion', 'Trillion', 'Quadrillion', 'Quintillion']
+const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen']
+const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety']
+const cases = ['titleCase', 'lowerCase', 'upperCase']
+const caseFunctions = [String.prototype.toString, String.prototype.toLowerCase, String.prototype.toUpperCase]
+
+class EnUsConverter extends numberToText.Converter {
+  constructor () {
+    super()
+    numberToText.addConverter('en-us', this)
+  }
+
+  convertToText (num, options) {
+    options = options || {}
+    if (options.separator !== '') options.separator = options.separator || ','
+    if (cases.indexOf(options.case) === -1) {
+      options.case = cases[0]
+    }
+    const caseFunction = caseFunctions[cases.indexOf(options.case)]
+
+    const valueArray = []
+    if (typeof num === 'number' || num instanceof Number) {
+      num = num.toString()
+    }
+    if (num === '0') {
+      return caseFunction.call('Zero')
+    }
+    const splittedNumbers = num.match(/.{1,}(?=(...){5}(...)$)|.{1,3}(?=(...){0,5}$)|.{1,3}$/g)
+    for (let index = 0; index < splittedNumbers.length; ++index) {
+      const splitValues = []
+      const splitNum = splittedNumbers[index]
+      if (splitNum.length > 3) {
+        splitValues.push(module.exports.convertToText(splitNum))
+      } else {
+        if (splitNum.length === 3 && ones[splitNum.charAt(0)]) {
+          splitValues.push(ones[splitNum.charAt(0)])
+          splitValues.push('Hundred')
+          if (ones[splitNum.charAt(1)] || ones[splitNum.charAt(2)]) splitValues.push('And')
+          // if (ones[splitNum.charAt(1)] || ones[splitNum.charAt(2)]) splitValues.push('And')
+        } if (splitNum.length >= 2) {
+          if (splitNum.substr(-2, 1) === '1') {
+            splitValues.push(ones[splitNum.substr(-2, 2)])
+          } else {
+            if (tens[splitNum.substr(-2, 1)]) {
+              splitValues.push(tens[splitNum.substr(-2, 1)])
+            }
+            if (ones[splitNum.substr(-1, 1)]) {
+              splitValues.push(ones[splitNum.substr(-1, 1)])
+            }
+          }
+        } else {
+          splitValues.push(ones[splitNum.charAt(0)])
+        }
+      }
+      if (thousands[splittedNumbers.length - 1 - index] && splitValues.length > 0) {
+        splitValues.push(thousands[splittedNumbers.length - 1 - index])
+      }
+      if (splitValues.length > 0) {
+        valueArray.push(splitValues.join(' '))
+      }
+    }
+    return caseFunction.call((valueArray.join(options.separator + ' ')))
+  }
+}
+
+module.exports = new EnUsConverter()
+
+
+/***/ })
+/******/ 	]);
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+(() => {
+const numberToText = __webpack_require__(1);
+__webpack_require__(3);
 
 let wormLength = 3;
 let wormSpeed = 150; //higher = slower
@@ -328,3 +490,8 @@ userInput();
 generatePellet();
 updateScore();
 hunger();
+
+})();
+
+/******/ })()
+;
