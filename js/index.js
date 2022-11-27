@@ -286,7 +286,7 @@ function enemyWorm() {
   }
   setTimeout(() => {
     enemyWorm();
-  }, "10");
+  }, "200");
 }
 function hunger() {
   var hungerBar = document.getElementById("wormFoodBar");
