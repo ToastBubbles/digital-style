@@ -448,7 +448,7 @@ function enemyWorm() {
   }
   setTimeout(() => {
     enemyWorm();
-  }, "200");
+  }, "180");
 }
 function hunger() {
   var hungerBar = document.getElementById("wormFoodBar");
